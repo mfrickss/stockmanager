@@ -2,5 +2,4 @@
 *.pyc
 __pycache__/
 .env
-staticfiles/
 .pytest_cache/
