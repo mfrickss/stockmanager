@@ -1,26 +1,30 @@
-# 📦 StockManager Premium
+# StockManager Premium
 
 Um sistema de gestão de estoque completo, focado em alta performance. Desenvolvido com **Django 5** e **MySQL**.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **Backend:** Python 3.11+ e Django 5.
 - **Banco de Dados:** MySQL (configurado via Django ORM).
 - **Frontend:** Vanilla CSS Moderno, HTML5.
 - **Testes:** `pytest` e `pytest-django`.
 
-## ✨ Funcionalidades
+## Funcionalidades
 
+- **Dashboard Financeiro & Gerencial:** Tela principal com capital imobilizado, alertas de estoque crítico (≤10), e rankings (Top 5 Produtos e Top 5 Categorias) com filtro de tempo.
+- **Movimentações de Estoque:** Histórico automatizado de todas as entradas e saídas (compras e vendas) em tempo real.
+- **Gestão Ágil via AJAX:**
+  - Adição rápida de quantidade no estoque diretamente da listagem sem recarregar a página.
+  - Criação dinâmica de Categorias a partir do formulário de Produto através de modais interativos.
 - **CRUD Completo:** Criação, leitura, atualização e exclusão segura de produtos e categorias.
 - **Autenticação Segura:** Proteção total de rotas; redirecionamento automático para tela de login customizada.
-- **Busca Integrada:** Filtre produtos por nome diretamente na interface.
-- **Painel Administrativo:** Django Admin integrado para gestão avançada e filtragem rápida.
+- **Painel Administrativo:** Django Admin integrado para gestão avançada.
 - **Interface Premium:**
-  - Design system consistente (Slate + Indigo).
+  - Design system consistente (Slate + Indigo/Purple).
   - Componentes de vidro (Glassmorphism).
-  - Micro-interações, tooltips nativas e responsividade.
+  - Micro-interações nativas e ícones (Phosphor Icons).
 
-## 🛠️ Como rodar o projeto localmente
+## Como rodar o projeto localmente
 
 ### 1. Clonar o Repositório e Configurar Ambiente
 
@@ -70,7 +74,7 @@ python manage.py runserver
 
 Acesse **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** para ver a aplicação rodando!
 
-## 🧪 Rodando os Testes Automatizados
+## Rodando os Testes Automatizados
 
 O sistema conta com testes de regressão para autenticação e integridade do banco de dados. Para rodá-los:
 
