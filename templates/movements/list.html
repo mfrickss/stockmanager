@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Movimentações - StockManager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-titles">
+        <h1>Histórico de Movimentações</h1>
+        <p class="subtitle">Acompanhe as entradas e saídas de estoque</p>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'movimentacao-create' %}" class="btn btn-primary">
+            <i class="ph ph-plus"></i> Nova Movimentação
+        </a>
+    </div>
+</div>
+
+<div class="table-container glass-panel">
+    <table class="modern-table">
+        <thead>
+            <tr>
+                <th>Data / Hora</th>
+                <th>Tipo</th>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Responsável</th>
+                <th>Observação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in movimentacoes %}
+            <tr>
+                <td class="text-muted">{{ m.criado_em|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if m.tipo == 'ENTRADA' %}
+                        <span class="badge badge-success"><i class="ph ph-trend-up"></i> Entrada</span>
+                    {% else %}
+                        <span class="badge badge-error"><i class="ph ph-trend-down"></i> Saída</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ m.produto.nome }}</strong></td>
+                <td class="font-mono">
+                    {% if m.tipo == 'ENTRADA' %}+{% else %}-{% endif %}{{ m.quantidade }} un
+                </td>
+                <td class="text-muted">{{ m.responsavel.username|default:"-" }}</td>
+                <td class="text-muted">{{ m.observacao|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <div class="empty-content">
+                        <i class="ph ph-arrows-left-right"></i>
+                        <h3>Nenhuma movimentação registrada</h3>
+                        <p>Registre entradas ou saídas de produtos para vê-las aqui.</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

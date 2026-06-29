@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - StockManager Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .login-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .login-box h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .login-box p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        .login-form .form-group {
+            text-align: left;
+            margin-bottom: 1.25rem;
+        }
+        .login-btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+        .form-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        /* Override form-group input specificity for the icons */
+        .search-input-wrapper input {
+            padding-left: 2.8rem !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box glass-panel">
+        <i class="ph-fill ph-package login-icon"></i>
+        <h1>StockManager</h1>
+        <p>Faça login para gerenciar o estoque</p>
+
+        {% if form.errors %}
+            <div class="form-error">
+                Nome de usuário ou senha incorretos. Tente novamente.
+            </div>
+        {% endif %}
+
+        <form method="POST" class="login-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_username">Usuário</label>
+                <div class="search-input-wrapper">
+                    <i class="ph ph-user"></i>
+                    <input type="text" name="username" id="id_username" class="search-input" required autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">Senha</label>
+                <div class="search-input-wrapper">
+                    <i class="ph ph-lock-key"></i>
+                    <input type="password" name="password" id="id_password" class="search-input" required>
+                </div>
+            </div>
+
+            <input type="hidden" name="next" value="{{ next|default:'/' }}">
+
+            <button type="submit" class="btn btn-primary login-btn">
+                Entrar no Sistema <i class="ph ph-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</body>
+</html>

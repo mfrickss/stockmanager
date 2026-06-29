@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Produtos - StockManager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-titles">
+        <h1>Gestão de Produtos</h1>
+        <p class="subtitle">Gerencie seu inventário e catálogo</p>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'produto-create' %}" class="btn btn-primary">
+            <i class="ph ph-plus"></i> Novo Produto
+        </a>
+    </div>
+</div>
+
+<!-- Barra de Ferramentas / Busca -->
+<div class="toolbar glass-panel">
+    <form class="search-form" method="GET" action="{% url 'produto-list' %}">
+        <div class="search-input-wrapper">
+            <i class="ph ph-magnifying-glass"></i>
+            <input type="text" name="q" value="{{ query }}" placeholder="Buscar por nome..." class="search-input">
+        </div>
+        <button type="submit" class="btn btn-secondary">Buscar</button>
+        {% if query %}
+            <a href="{% url 'produto-list' %}" class="btn btn-ghost">Limpar</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Tabela de Produtos -->
+<div class="table-container glass-panel">
+    <table class="modern-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Estoque</th>
+                <th class="text-right">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in produtos %}
+            <tr>
+                <td>
+                    <div class="product-name-cell">
+                        <strong>{{ p.nome }}</strong>
+                        {% if not p.ativo %}
+                        <span class="badge badge-error">Inativo</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td><span class="badge badge-neutral">{{ p.categoria.nome }}</span></td>
+                <td class="font-mono">R$ {{ p.preco }}</td>
+                <td>
+                    <span class="badge {% if p.quantidade_estoque < 10 %}badge-warning{% else %}badge-success{% endif %}">
+                        {{ p.quantidade_estoque }} un
+                    </span>
+                </td>
+                <td class="actions-cell">
+                    <a href="{% url 'produto-update' p.id %}" class="action-btn edit-btn" title="Editar">
+                        <i class="ph ph-pencil-simple"></i>
+                    </a>
+                    <a href="{% url 'produto-delete' p.id %}" class="action-btn delete-btn" title="Excluir">
+                        <i class="ph ph-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <div class="empty-content">
+                        <i class="ph ph-package"></i>
+                        <h3>Nenhum produto encontrado</h3>
+                        <p>Tente mudar os filtros de busca ou crie um novo produto.</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

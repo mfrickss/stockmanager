@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir Produto - StockManager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-titles">
+        <a href="{% url 'produto-list' %}" class="back-link"><i class="ph ph-arrow-left"></i> Voltar</a>
+        <h1>Excluir Produto</h1>
+    </div>
+</div>
+
+<div class="form-container glass-panel delete-panel">
+    <div class="delete-icon-wrapper">
+        <i class="ph ph-warning-circle text-error"></i>
+    </div>
+    
+    <h2>Você tem certeza?</h2>
+    <p>Esta ação não pode ser desfeita. Você está prestes a excluir permanentemente o produto:</p>
+    
+    <div class="product-highlight">
+        <h3>{{ produto.nome }}</h3>
+        <p class="text-muted">SKU: {{ produto.sku }} | Categoria: {{ produto.categoria.nome }}</p>
+    </div>
+
+    <form method="POST" class="delete-form">
+        {% csrf_token %}
+        <div class="form-actions center-actions">
+            <a href="{% url 'produto-list' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-danger">
+                <i class="ph ph-trash"></i> Sim, Excluir Produto
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

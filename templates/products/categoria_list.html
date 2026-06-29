@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Categorias - StockManager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-titles">
+        <h1>Gestão de Categorias</h1>
+        <p class="subtitle">Organize seus produtos por seções</p>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'categoria-create' %}" class="btn btn-primary">
+            <i class="ph ph-plus"></i> Nova Categoria
+        </a>
+    </div>
+</div>
+
+<div class="table-container glass-panel">
+    <table class="modern-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Criado Em</th>
+                <th class="text-right">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in categorias %}
+            <tr>
+                <td><strong>{{ c.nome }}</strong></td>
+                <td class="text-muted">{{ c.descricao|default:"-" }}</td>
+                <td class="text-muted">{{ c.criado_em|date:"d/m/Y H:i" }}</td>
+                <td class="actions-cell">
+                    <a href="{% url 'categoria-update' c.id %}" class="action-btn edit-btn" title="Editar">
+                        <i class="ph ph-pencil-simple"></i>
+                    </a>
+                    <a href="{% url 'categoria-delete' c.id %}" class="action-btn delete-btn" title="Excluir">
+                        <i class="ph ph-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="empty-state">
+                    <div class="empty-content">
+                        <i class="ph ph-tags"></i>
+                        <h3>Nenhuma categoria cadastrada</h3>
+                        <p>Crie a primeira categoria para começar a organizar seu estoque.</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
