@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - StockManager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-titles">
+        <h1><i class="ph ph-squares-four"></i> Dashboard do Estoque</h1>
+        <p class="subtitle">Visão geral e métricas do seu negócio</p>
+    </div>
+    <div class="header-actions">
+        <form method="GET" class="period-form" style="display: flex; gap: 0.5rem; align-items: center;">
+            <select name="periodo" class="form-control" onchange="this.form.submit()" style="min-width: 150px; padding: 0.5rem; cursor: pointer;">
+                <option value="hoje" {% if periodo == 'hoje' %}selected{% endif %}>Hoje</option>
+                <option value="7dias" {% if periodo == '7dias' %}selected{% endif %}>Últimos 7 dias</option>
+                <option value="mes" {% if periodo == 'mes' %}selected{% endif %}>Este Mês</option>
+                <option value="ano" {% if periodo == 'ano' %}selected{% endif %}>Este Ano</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+<!-- Linha 1: Cards Financeiros Principais -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+
+    <!-- Capital Imobilizado -->
+    <div class="glass-panel" style="padding: 1.5rem; border-left: 4px solid #a855f7; margin-bottom: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Capital Imobilizado</h3>
+            <div style="background: rgba(168, 85, 247, 0.1); padding: 0.5rem; border-radius: 8px; color: #a855f7;">
+                <i class="ph ph-vault" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <div style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; color: #a855f7;">
+            R$ {{ capital_imobilizado|floatformat:2 }}
+        </div>
+        <div style="color: var(--text-muted); font-size: 0.8rem;">
+            <strong>{{ total_produtos_ativos }}</strong> produtos &middot; <strong>{{ total_itens_estoque }}</strong> itens em estoque
+        </div>
+    </div>
+
+    <!-- Entradas -->
+    <div class="glass-panel" style="padding: 1.5rem; border-left: 4px solid var(--primary, #6366f1); margin-bottom: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Entradas (Compras)</h3>
+            <div style="background: rgba(99, 102, 241, 0.1); padding: 0.5rem; border-radius: 8px; color: var(--primary);">
+                <i class="ph ph-arrow-down-left" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <div style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">
+            R$ {{ valor_entrada|floatformat:2 }}
+        </div>
+        <div style="color: var(--text-muted); font-size: 0.8rem;">
+            <strong>{{ qtd_entrada }}</strong> unidades em {{ periodo_label|lower }}
+        </div>
+    </div>
+
+    <!-- Saídas -->
+    <div class="glass-panel" style="padding: 1.5rem; border-left: 4px solid var(--success, #10b981); margin-bottom: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Saídas (Vendas)</h3>
+            <div style="background: rgba(16, 185, 129, 0.1); padding: 0.5rem; border-radius: 8px; color: var(--success);">
+                <i class="ph ph-arrow-up-right" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <div style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--success);">
+            R$ {{ valor_saida|floatformat:2 }}
+        </div>
+        <div style="color: var(--text-muted); font-size: 0.8rem;">
+            <strong>{{ qtd_saida }}</strong> unidades em {{ periodo_label|lower }}
+        </div>
+    </div>
+</div>
+
+<!-- Linha 2: Rankings Top 5 -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+
+    <!-- Top 5 Produtos -->
+    <div class="glass-panel" style="padding: 0; margin-bottom: 0; overflow: hidden;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.5rem;">
+            <i class="ph ph-trophy" style="color: #f59e0b; font-size: 1.25rem;"></i>
+            <h3 style="margin: 0; font-size: 1rem;">Top 5 Produtos Mais Vendidos</h3>
+            <span class="badge badge-neutral" style="margin-left: auto; font-size: 0.65rem;">{{ periodo_label }}</span>
+        </div>
+        <div style="padding: 0;">
+            {% for item in top_produtos %}
+            <div style="display: flex; align-items: center; padding: 0.85rem 1.5rem; border-bottom: 1px solid var(--border-color); gap: 1rem;">
+                <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;
+                    {% if forloop.counter == 1 %}background: rgba(245, 158, 11, 0.2); color: #f59e0b;
+                    {% elif forloop.counter == 2 %}background: rgba(148, 163, 184, 0.2); color: #94a3b8;
+                    {% elif forloop.counter == 3 %}background: rgba(180, 83, 9, 0.2); color: #d97706;
+                    {% else %}background: rgba(255,255,255,0.05); color: var(--text-muted);
+                    {% endif %}">
+                    {{ forloop.counter }}
+                </div>
+                <span style="flex: 1; font-weight: 500;">{{ item.produto__nome }}</span>
+                <span class="badge badge-success" style="font-size: 0.7rem;">{{ item.total_vendido }} un</span>
+            </div>
+            {% empty %}
+            <div style="padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted);">
+                <i class="ph ph-chart-bar" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.3;"></i>
+                Nenhuma venda registrada em {{ periodo_label|lower }}.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Top 5 Categorias -->
+    <div class="glass-panel" style="padding: 0; margin-bottom: 0; overflow: hidden;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.5rem;">
+            <i class="ph ph-medal" style="color: #6366f1; font-size: 1.25rem;"></i>
+            <h3 style="margin: 0; font-size: 1rem;">Top 5 Categorias Mais Vendidas</h3>
+            <span class="badge badge-neutral" style="margin-left: auto; font-size: 0.65rem;">{{ periodo_label }}</span>
+        </div>
+        <div style="padding: 0;">
+            {% for item in top_categorias %}
+            <div style="display: flex; align-items: center; padding: 0.85rem 1.5rem; border-bottom: 1px solid var(--border-color); gap: 1rem;">
+                <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;
+                    {% if forloop.counter == 1 %}background: rgba(245, 158, 11, 0.2); color: #f59e0b;
+                    {% elif forloop.counter == 2 %}background: rgba(148, 163, 184, 0.2); color: #94a3b8;
+                    {% elif forloop.counter == 3 %}background: rgba(180, 83, 9, 0.2); color: #d97706;
+                    {% else %}background: rgba(255,255,255,0.05); color: var(--text-muted);
+                    {% endif %}">
+                    {{ forloop.counter }}
+                </div>
+                <span style="flex: 1; font-weight: 500;">
+                    <a href="{% url 'produto-list' %}?categoria={{ item.produto__categoria__id }}" style="color: inherit; text-decoration: none;">
+                        <i class="ph ph-tag" style="margin-right: 4px; color: var(--primary);"></i>{{ item.produto__categoria__nome }}
+                    </a>
+                </span>
+                <span class="badge badge-primary" style="background: rgba(99,102,241,0.2); color: var(--primary); font-size: 0.7rem;">{{ item.total_vendido }} un</span>
+            </div>
+            {% empty %}
+            <div style="padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted);">
+                <i class="ph ph-chart-bar" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.3;"></i>
+                Nenhuma venda registrada em {{ periodo_label|lower }}.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Linha 3: Alertas e Movimentações -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+    <!-- Estoque Crítico -->
+    <div class="glass-panel" style="padding: 0; margin-bottom: 0; overflow: hidden; border: 1px solid {% if estoque_critico %}rgba(239, 68, 68, 0.25){% else %}var(--border-color){% endif %};">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.5rem;
+            {% if estoque_critico %}background: rgba(239, 68, 68, 0.05);{% endif %}">
+            <i class="ph ph-warning" style="color: var(--danger); font-size: 1.25rem;"></i>
+            <h3 style="margin: 0; font-size: 1rem;">Alerta de Estoque Crítico</h3>
+            {% if estoque_critico %}
+            <span class="badge badge-error" style="margin-left: auto; font-size: 0.65rem;">{{ estoque_critico|length }} produtos</span>
+            {% endif %}
+        </div>
+        <div style="padding: 0;">
+            {% for p in estoque_critico %}
+            <div style="display: flex; align-items: center; padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border-color); gap: 1rem;">
+                <span style="flex: 1; font-weight: 500;">{{ p.nome }}</span>
+                <span class="badge {% if p.quantidade_estoque == 0 %}badge-error{% else %}badge-warning{% endif %}" style="font-size: 0.7rem;">
+                    {% if p.quantidade_estoque == 0 %}ESGOTADO{% else %}{{ p.quantidade_estoque }} un{% endif %}
+                </span>
+            </div>
+            {% empty %}
+            <div style="padding: 2.5rem 1.5rem; text-align: center; color: var(--success);">
+                <i class="ph ph-check-circle" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                Todos os produtos estão com estoque saudável!
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Movimentações Recentes -->
+    <div class="glass-panel" style="padding: 0; margin-bottom: 0; overflow: hidden;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ph ph-clock-counter-clockwise" style="color: var(--text-muted); font-size: 1.25rem;"></i>
+                <h3 style="margin: 0; font-size: 1rem;">Movimentações Recentes</h3>
+            </div>
+            <a href="{% url 'movimentacao-list' %}" class="btn btn-ghost" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">Ver todas</a>
+        </div>
+        <div style="padding: 0;">
+            {% for mov in movimentacoes_recentes %}
+            <div style="display: flex; align-items: center; padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border-color); gap: 1rem;">
+                {% if mov.tipo == 'ENTRADA' %}
+                <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(99, 102, 241, 0.15); color: var(--primary);">
+                    <i class="ph ph-arrow-down-left" style="font-size: 0.85rem;"></i>
+                </div>
+                {% else %}
+                <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.15); color: var(--success);">
+                    <i class="ph ph-arrow-up-right" style="font-size: 0.85rem;"></i>
+                </div>
+                {% endif %}
+                <div style="flex: 1;">
+                    <div style="font-weight: 500; font-size: 0.9rem;">{{ mov.produto.nome }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ mov.criado_em|date:"d/m/Y H:i" }}</div>
+                </div>
+                <span class="font-mono" style="font-weight: 600; font-size: 0.9rem;
+                    {% if mov.tipo == 'ENTRADA' %}color: var(--primary);{% else %}color: var(--success);{% endif %}">
+                    {% if mov.tipo == 'ENTRADA' %}+{% else %}-{% endif %}{{ mov.quantidade }}
+                </span>
+            </div>
+            {% empty %}
+            <div style="padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted);">
+                <i class="ph ph-arrows-left-right" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.3;"></i>
+                Nenhuma movimentação registrada.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

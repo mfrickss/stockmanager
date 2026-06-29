@@ -62,4 +62,157 @@
         </div>
     </form>
 </div>
+
+<!-- Modal Nova Categoria -->
+<div id="modalNovaCategoria" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="form-container glass-panel" style="width: 100%; max-width: 500px; padding: 2rem;">
+        <h2>Nova Categoria</h2>
+        <div class="form-grid" style="margin-top: 1rem;">
+            <div class="form-group span-2">
+                <label for="new_categoria_nome">Nome</label>
+                <input type="text" id="new_categoria_nome" class="form-control">
+            </div>
+            <div class="form-group span-2">
+                <label for="new_categoria_descricao">Descrição</label>
+                <textarea id="new_categoria_descricao" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+        <div id="modal-error" class="error-text" style="display: none; margin-bottom: 1rem;"></div>
+        <div class="form-actions" style="margin-top: 1.5rem;">
+            <button type="button" class="btn btn-ghost" onclick="fecharModalCategoria()">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="salvarNovaCategoria()">Salvar Categoria</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoriaSelect = document.getElementById('id_categoria');
+        
+        if (categoriaSelect) {
+            // Adicionar opção "Nova Categoria..."
+            const option = document.createElement('option');
+            option.value = 'new_category';
+            option.text = '+ Nova Categoria...';
+            option.style.fontWeight = 'bold';
+            // Pega a cor principal do css ou usa um default
+            option.style.color = 'var(--primary, #6366f1)'; 
+            
+            // Adiciona como a segunda opção (logo após o vazio "---------")
+            if (categoriaSelect.options.length > 1) {
+                categoriaSelect.add(option, categoriaSelect.options[1]);
+            } else {
+                categoriaSelect.add(option);
+            }
+            
+            // Variável para guardar o valor anterior caso o usuário cancele
+            let valorAnterior = categoriaSelect.value;
+            
+            // Listener de mudança
+            categoriaSelect.addEventListener('change', function(e) {
+                if (e.target.value === 'new_category') {
+                    abrirModalCategoria();
+                    // Restaurar valor anterior temporariamente para não ficar selecionado "new_category" caso feche o modal
+                    e.target.value = valorAnterior; 
+                } else {
+                    valorAnterior = e.target.value;
+                }
+            });
+        }
+    });
+
+    function abrirModalCategoria() {
+        document.getElementById('modalNovaCategoria').style.display = 'flex';
+        document.getElementById('new_categoria_nome').value = '';
+        document.getElementById('new_categoria_descricao').value = '';
+        document.getElementById('modal-error').style.display = 'none';
+        
+        // Timeout pequeno para focar no input após o modal aparecer
+        setTimeout(() => document.getElementById('new_categoria_nome').focus(), 100);
+    }
+
+    function fecharModalCategoria() {
+        document.getElementById('modalNovaCategoria').style.display = 'none';
+    }
+
+    function salvarNovaCategoria() {
+        const nome = document.getElementById('new_categoria_nome').value;
+        const descricao = document.getElementById('new_categoria_descricao').value;
+        const errorDiv = document.getElementById('modal-error');
+        
+        if (!nome.trim()) {
+            errorDiv.textContent = 'O nome da categoria é obrigatório.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        const btnSalvar = document.querySelector('#modalNovaCategoria .btn-primary');
+        const originalText = btnSalvar.innerHTML;
+        btnSalvar.innerHTML = 'Salvando...';
+        btnSalvar.disabled = true;
+        
+        fetch("{% url 'categoria-create-ajax' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                nome: nome,
+                descricao: descricao
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Fechar modal
+                fecharModalCategoria();
+                
+                // Adicionar nova opção
+                const categoriaSelect = document.getElementById('id_categoria');
+                const novaOpcao = document.createElement('option');
+                novaOpcao.value = data.categoria.id;
+                novaOpcao.text = data.categoria.nome;
+                
+                // Adiciona antes do '+ Nova Categoria...' ou no fim
+                const newCategoryOptionIndex = Array.from(categoriaSelect.options).findIndex(opt => opt.value === 'new_category');
+                if (newCategoryOptionIndex !== -1) {
+                    categoriaSelect.add(novaOpcao, categoriaSelect.options[newCategoryOptionIndex]);
+                } else {
+                    categoriaSelect.add(novaOpcao);
+                }
+                
+                // Selecionar a nova opção criada
+                categoriaSelect.value = data.categoria.id;
+                
+                // Mostrar feedback (opcional)
+                const toast = document.createElement('div');
+                toast.style.position = 'fixed';
+                toast.style.bottom = '20px';
+                toast.style.right = '20px';
+                toast.style.background = 'var(--success, #10b981)';
+                toast.style.color = 'white';
+                toast.style.padding = '1rem 1.5rem';
+                toast.style.borderRadius = '0.5rem';
+                toast.style.zIndex = '9999';
+                toast.textContent = 'Categoria criada com sucesso!';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+                
+            } else {
+                errorDiv.textContent = data.error;
+                errorDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorDiv.textContent = 'Erro ao se comunicar com o servidor. Verifique o console.';
+            errorDiv.style.display = 'block';
+        })
+        .finally(() => {
+            btnSalvar.innerHTML = originalText;
+            btnSalvar.disabled = false;
+        });
+    }
+</script>
 {% endblock %}

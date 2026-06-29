@@ -1,85 +1,173 @@
-{% extends 'base.html' %}
-
-{% block title %}Produtos - StockManager{% endblock %}
-
+{% extends 'base.html' %} {% block title %}Produtos - StockManager{% endblock %}
 {% block content %}
 <div class="page-header">
-    <div class="header-titles">
-        <h1>Gestão de Produtos</h1>
-        <p class="subtitle">Gerencie seu inventário e catálogo</p>
-    </div>
-    <div class="header-actions">
-        <a href="{% url 'produto-create' %}" class="btn btn-primary">
-            <i class="ph ph-plus"></i> Novo Produto
-        </a>
-    </div>
+  <div class="header-titles">
+    <h1>Gestão de Produtos</h1>
+    <p class="subtitle">Gerencie seu inventário e catálogo</p>
+  </div>
+  <div class="header-actions">
+    <a href="{% url 'produto-create' %}" class="btn btn-primary">
+      <i class="ph ph-plus"></i> Novo Produto
+    </a>
+  </div>
 </div>
 
 <!-- Barra de Ferramentas / Busca -->
 <div class="toolbar glass-panel">
-    <form class="search-form" method="GET" action="{% url 'produto-list' %}">
-        <div class="search-input-wrapper">
-            <i class="ph ph-magnifying-glass"></i>
-            <input type="text" name="q" value="{{ query }}" placeholder="Buscar por nome..." class="search-input">
-        </div>
-        <button type="submit" class="btn btn-secondary">Buscar</button>
-        {% if query %}
-            <a href="{% url 'produto-list' %}" class="btn btn-ghost">Limpar</a>
-        {% endif %}
-    </form>
+  <form class="search-form" method="GET" action="{% url 'produto-list' %}">
+    <div class="search-input-wrapper">
+      <i class="ph ph-magnifying-glass"></i>
+      <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Buscar por nome..."
+        class="search-input"
+      />
+    </div>
+    <button type="submit" class="btn btn-secondary">Buscar</button>
+    {% if query %}
+    <a href="{% url 'produto-list' %}" class="btn btn-ghost">Limpar</a>
+    {% endif %}
+  </form>
 </div>
 
 <!-- Tabela de Produtos -->
 <div class="table-container glass-panel">
-    <table class="modern-table">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Categoria</th>
-                <th>Preço</th>
-                <th>Estoque</th>
-                <th class="text-right">Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in produtos %}
-            <tr>
-                <td>
-                    <div class="product-name-cell">
-                        <strong>{{ p.nome }}</strong>
-                        {% if not p.ativo %}
-                        <span class="badge badge-error">Inativo</span>
-                        {% endif %}
-                    </div>
-                </td>
-                <td><span class="badge badge-neutral">{{ p.categoria.nome }}</span></td>
-                <td class="font-mono">R$ {{ p.preco }}</td>
-                <td>
-                    <span class="badge {% if p.quantidade_estoque < 10 %}badge-warning{% else %}badge-success{% endif %}">
-                        {{ p.quantidade_estoque }} un
-                    </span>
-                </td>
-                <td class="actions-cell">
-                    <a href="{% url 'produto-update' p.id %}" class="action-btn edit-btn" title="Editar">
-                        <i class="ph ph-pencil-simple"></i>
-                    </a>
-                    <a href="{% url 'produto-delete' p.id %}" class="action-btn delete-btn" title="Excluir">
-                        <i class="ph ph-trash"></i>
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="empty-state">
-                    <div class="empty-content">
-                        <i class="ph ph-package"></i>
-                        <h3>Nenhum produto encontrado</h3>
-                        <p>Tente mudar os filtros de busca ou crie um novo produto.</p>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <table class="modern-table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Categoria</th>
+        <th>Preço</th>
+        <th>Estoque</th>
+        <th class="text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in produtos %}
+      <tr>
+        <td>
+          <div class="product-name-cell">
+            <strong>{{ p.nome }}</strong>
+            {% if not p.ativo %}
+            <span class="badge badge-error">Inativo</span>
+            {% endif %}
+          </div>
+        </td>
+        <td><span class="badge badge-neutral">{{ p.categoria.nome }}</span></td>
+        <td class="font-mono">R$ {{ p.preco }}</td>
+        <td>
+          <div
+            class="stock-adjust-wrapper"
+            style="display: flex; align-items: center; gap: 0.5rem"
+          >
+            <button
+              type="button"
+              class="btn btn-ghost"
+              onclick="ajustarEstoque({{ p.id }}, 'decrease')"
+              title="Diminuir Estoque"
+              style="
+                padding: 0.25rem 0.5rem;
+                height: auto;
+                min-height: unset;
+                line-height: 1;
+              "
+            >
+              -
+            </button>
+            <span
+              id="stock-badge-{{ p.id }}"
+              class="badge {% if p.quantidade_estoque < 10 %}badge-warning{% else %}badge-success{% endif %}"
+            >
+              {{ p.quantidade_estoque }} un
+            </span>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              onclick="ajustarEstoque({{ p.id }}, 'increase')"
+              title="Aumentar Estoque"
+              style="
+                padding: 0.25rem 0.5rem;
+                height: auto;
+                min-height: unset;
+                line-height: 1;
+              "
+            >
+              +
+            </button>
+          </div>
+        </td>
+        <td class="actions-cell">
+          <a
+            href="{% url 'produto-update' p.id %}"
+            class="action-btn edit-btn"
+            title="Editar"
+          >
+            <i class="ph ph-pencil-simple"></i>
+          </a>
+          <a
+            href="{% url 'produto-delete' p.id %}"
+            class="action-btn delete-btn"
+            title="Excluir"
+          >
+            <i class="ph ph-trash"></i>
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="empty-state">
+          <div class="empty-content">
+            <i class="ph ph-package"></i>
+            <h3>Nenhum produto encontrado</h3>
+            <p>Tente mudar os filtros de busca ou crie um novo produto.</p>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
+
+{% csrf_token %}
+<script>
+  function ajustarEstoque(produtoId, acao) {
+    const csrfToken = document.querySelector(
+      "[name=csrfmiddlewaretoken]",
+    ).value;
+
+    fetch(`/produtos/${produtoId}/estoque/ajax/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify({ action: acao }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          const badge = document.getElementById(`stock-badge-${produtoId}`);
+          badge.textContent = `${data.new_stock} un`;
+
+          if (data.new_stock < 10) {
+            badge.classList.remove("badge-success");
+            badge.classList.add("badge-warning");
+          } else {
+            badge.classList.remove("badge-warning");
+            badge.classList.add("badge-success");
+          }
+
+          // Feedback opcional visual rápido no botão poderia ser adicionado aqui
+        } else {
+          alert(data.error);
+        }
+      })
+      .catch((error) => {
+        console.error("Erro:", error);
+        alert("Erro ao atualizar o estoque.");
+      });
+  }
+</script>
 {% endblock %}

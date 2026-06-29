@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-header">
     <div class="header-titles">
-        <h1>Gestão de Categorias</h1>
+        <h1><i class="ph ph-tags"></i> Gestão de Categorias</h1>
         <p class="subtitle">Organize seus produtos por seções</p>
     </div>
     <div class="header-actions">
@@ -28,7 +28,11 @@
         <tbody>
             {% for c in categorias %}
             <tr>
-                <td><strong>{{ c.nome }}</strong></td>
+                <td>
+                    <a href="{% url 'produto-list' %}?categoria={{ c.id }}" title="Ver produtos desta categoria"; text-decoration: none; font-weight: bold;">
+                        {{ c.nome }}
+                    </a>
+                </td>
                 <td class="text-muted">{{ c.descricao|default:"-" }}</td>
                 <td class="text-muted">{{ c.criado_em|date:"d/m/Y H:i" }}</td>
                 <td class="actions-cell">

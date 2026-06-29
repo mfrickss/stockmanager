@@ -1,16 +1,21 @@
+import json
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import Produto, Categoria
 from .forms import ProdutoForm, CategoriaForm
 
 @login_required
 def produto_list(request):
     query = request.GET.get('q', '')
+    categoria_id = request.GET.get('categoria')
     produtos = Produto.objects.filter(ativo=True)
     if query:
         produtos = produtos.filter(nome__icontains=query)
-    return render(request, 'products/list.html', {'produtos': produtos, 'query': query})
+    if categoria_id:
+        produtos = produtos.filter(categoria_id=categoria_id)
+    return render(request, 'products/list.html', {'produtos': produtos, 'query': query, 'categoria_id': categoria_id})
 
 @login_required
 def produto_create(request):
@@ -38,6 +43,7 @@ def produto_create(request):
 @login_required
 def produto_update(request, pk):
     produto = get_object_or_404(Produto, pk=pk)
+    old_estoque = produto.quantidade_estoque
     form = ProdutoForm(request.POST or None, instance=produto)
     if form.is_valid():
         produto = form.save(commit=False)
@@ -49,9 +55,58 @@ def produto_update(request, pk):
             )
             produto.categoria = categoria_padrao
         produto.save()
+        
+        new_estoque = produto.quantidade_estoque
+        if new_estoque != old_estoque:
+            diff = new_estoque - old_estoque
+            from movements.models import Movimentacao
+            Movimentacao.objects.create(
+                produto=produto,
+                tipo='ENTRADA' if diff > 0 else 'SAIDA',
+                quantidade=abs(diff),
+                observacao="Alteração de estoque via formulário de edição",
+                responsavel=request.user
+            )
+            
         messages.success(request, 'Produto atualizado com sucesso!')
         return redirect('produto-list')
     return render(request, 'products/form.html', {'form': form, 'titulo': f'Editar: {produto.nome}'})
+
+@login_required
+def produto_stock_adjust_ajax(request, pk):
+    if request.method == 'POST':
+        try:
+            produto = get_object_or_404(Produto, pk=pk)
+            data = json.loads(request.body)
+            action = data.get('action')
+            
+            from movements.models import Movimentacao
+            
+            if action == 'increase':
+                produto.quantidade_estoque += 1
+                tipo_mov = 'ENTRADA'
+            elif action == 'decrease':
+                if produto.quantidade_estoque <= 0:
+                    return JsonResponse({'success': False, 'error': 'O estoque não pode ser negativo.'})
+                produto.quantidade_estoque -= 1
+                tipo_mov = 'SAIDA'
+            else:
+                return JsonResponse({'success': False, 'error': 'Ação inválida.'})
+                
+            produto.save(update_fields=['quantidade_estoque'])
+            
+            Movimentacao.objects.create(
+                produto=produto,
+                tipo=tipo_mov,
+                quantidade=1,
+                observacao="Ajuste rápido via lista de produtos",
+                responsavel=request.user
+            )
+            
+            return JsonResponse({'success': True, 'new_stock': produto.quantidade_estoque})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método inválido.'})
 
 @login_required
 def produto_delete(request, pk):
@@ -75,6 +130,32 @@ def categoria_create(request):
         messages.success(request, 'Categoria criada com sucesso!')
         return redirect('categoria-list')
     return render(request, 'products/categoria_form.html', {'form': form, 'titulo': 'Nova Categoria'})
+
+@login_required
+def categoria_create_ajax(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            nome = data.get('nome', '').strip()
+            descricao = data.get('descricao', '').strip()
+            
+            if not nome:
+                return JsonResponse({'success': False, 'error': 'O nome da categoria é obrigatório.'})
+                
+            if Categoria.objects.filter(nome__iexact=nome).exists():
+                return JsonResponse({'success': False, 'error': 'Já existe uma categoria com este nome.'})
+                
+            categoria = Categoria.objects.create(nome=nome, descricao=descricao)
+            return JsonResponse({
+                'success': True,
+                'categoria': {
+                    'id': categoria.id,
+                    'nome': categoria.nome
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': f'Erro ao criar categoria: {str(e)}'})
+    return JsonResponse({'success': False, 'error': 'Método inválido.'})
 
 @login_required
 def categoria_update(request, pk):

@@ -1,83 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}StockManager Premium{% endblock %}</title>
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- Ícones Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
     <div class="layout-wrapper">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <i class="ph-fill ph-package"></i>
-                <h2>StockManager</h2>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <a href="{% url 'produto-list' %}" class="nav-item">
-                    <i class="ph ph-package"></i>
-                    <span>Produtos</span>
-                </a>
-                <a href="{% url 'categoria-list' %}" class="nav-item">
-                    <i class="ph ph-tags"></i>
-                    <span>Categorias</span>
-                </a>
-                <a href="{% url 'movimentacao-list' %}" class="nav-item">
-                    <i class="ph ph-arrows-left-right"></i>
-                    <span>Movimentações</span>
-                </a>
-            </nav>
-            
-            <div class="sidebar-footer">
-                {% if user.is_authenticated %}
-                <div class="user-info">
-                    <div class="avatar">{{ user.username|make_list|first|upper }}</div>
-                    <div class="details">
-                        <span class="name">{{ user.username }}</span>
-                        <span class="role">Admin</span>
-                    </div>
-                </div>
-                <form action="{% url 'logout' %}" method="post" class="logout-form">
-                    {% csrf_token %}
-                    <button type="submit" class="logout-btn">
-                        <i class="ph ph-sign-out"></i>
-                        <span>Sair</span>
-                    </button>
-                </form>
-                {% endif %}
-            </div>
-        </aside>
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="ph-fill ph-package"></i>
+          <h2>StockManager</h2>
+        </div>
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Top Header for messages -->
-            <header class="top-header">
-                {% if messages %}
-                    <div class="messages-container">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </header>
+        <nav class="sidebar-nav">
+          <a href="{% url 'dashboard' %}" class="nav-item">
+            <i class="ph ph-squares-four"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="{% url 'produto-list' %}" class="nav-item">
+            <i class="ph ph-package"></i>
+            <span>Produtos</span>
+          </a>
+          <a href="{% url 'categoria-list' %}" class="nav-item">
+            <i class="ph ph-tag"></i>
+            <span>Categorias</span>
+          </a>
+          <a href="{% url 'movimentacao-list' %}" class="nav-item">
+            <i class="ph ph-arrows-left-right"></i>
+            <span>Movimentações</span>
+          </a>
+        </nav>
 
-            <div class="content-container">
-                {% block content %}
-                {% endblock content %}
+        <div class="sidebar-footer">
+          {% if user.is_authenticated %}
+          <div class="user-info">
+            <div class="avatar">{{ user.username|make_list|first|upper }}</div>
+            <div class="details">
+              <span class="name">{{ user.username }}</span>
+              <span class="role">Admin</span>
             </div>
-        </main>
+          </div>
+          <form action="{% url 'logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+              <i class="ph ph-sign-out"></i>
+              <span>Sair</span>
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- Top Header for messages -->
+        <header class="top-header">
+          {% if messages %}
+          <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </header>
+
+        <div class="content-container">
+          {% block content %} {% endblock content %}
+        </div>
+      </main>
     </div>
-</body>
+  </body>
 </html>
