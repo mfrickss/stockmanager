@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta - StockManager Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .login-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .login-box h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .login-box > p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        .login-form .form-group {
+            text-align: left;
+            margin-bottom: 1.25rem;
+        }
+        .login-btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+        .form-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            text-align: left;
+        }
+        .form-error ul {
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+        .search-input-wrapper input {
+            padding-left: 2.8rem !important;
+        }
+        .auth-link {
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .auth-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box glass-panel">
+        <i class="ph-fill ph-user-plus login-icon"></i>
+        <h1>Criar Conta</h1>
+        <p>Registre-se para acessar o sistema</p>
+
+        {% if errors %}
+            <div class="form-error">
+                <ul>
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="POST" class="login-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_username">Usuário</label>
+                <div class="search-input-wrapper">
+                    <i class="ph ph-user"></i>
+                    <input type="text" name="username" id="id_username" class="search-input"
+                           value="{{ form_data.username|default:'' }}" required autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_email">E-mail <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span></label>
+                <div class="search-input-wrapper">
+                    <i class="ph ph-envelope"></i>
+                    <input type="email" name="email" id="id_email" class="search-input"
+                           value="{{ form_data.email|default:'' }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password1">Senha</label>
+                <div class="search-input-wrapper">
+                    <i class="ph ph-lock-key"></i>
+                    <input type="password" name="password1" id="id_password1" class="search-input" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password2">Confirmar Senha</label>
+                <div class="search-input-wrapper">
+                    <i class="ph ph-lock-key"></i>
+                    <input type="password" name="password2" id="id_password2" class="search-input" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary login-btn">
+                Criar Conta <i class="ph ph-arrow-right"></i>
+            </button>
+        </form>
+
+        <p class="auth-link">
+            Já tem uma conta? <a href="{% url 'login' %}">Faça login</a>
+        </p>
+    </div>
+</body>
+</html>

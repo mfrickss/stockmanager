@@ -59,6 +59,19 @@
         .search-input-wrapper input {
             padding-left: 2.8rem !important;
         }
+        .auth-link {
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .auth-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +111,10 @@
                 Entrar no Sistema <i class="ph ph-arrow-right"></i>
             </button>
         </form>
+
+        <p class="auth-link">
+            Ainda não tem conta? <a href="{% url 'register' %}">Crie uma agora</a>
+        </p>
     </div>
 </body>
 </html>

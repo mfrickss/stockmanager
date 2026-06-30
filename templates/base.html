@@ -54,13 +54,10 @@
               <span class="role">Admin</span>
             </div>
           </div>
-          <form action="{% url 'logout' %}" method="post" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="logout-btn">
+          <a href="{% url 'logout' %}" class="logout-btn">
               <i class="ph ph-sign-out"></i>
               <span>Sair</span>
-            </button>
-          </form>
+          </a>
           {% endif %}
         </div>
       </aside>
